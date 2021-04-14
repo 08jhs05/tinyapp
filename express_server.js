@@ -93,6 +93,10 @@ app.get("/u/:shortURL", (req, res) => {
   res.redirect(longURL);
 });
 
+app.get("/login", (req, res) => {
+  res.render("login", getTemplateVars(users[req.cookies.user_id], req));
+});
+
 app.post("/login", (req, res) => {
   //res.cookie('username', req.body.username);
   res.redirect("/urls");
@@ -102,7 +106,6 @@ app.post("/logout", (req, res) => {
   //res.clearCookie("username");
   res.redirect("/urls");
 });
-
 
 // ===================================== helper functions =========================================
 
