@@ -12,13 +12,13 @@
       <div class="navbar-nav ml-auto">
         <% if(user) { %>
           <div class="nav-item my-auto mr-2">Logged In as: <%= user.email %></div>
+          <form class="nav-item form-inline" action="/logout" method="POST">
+            <button type="submit" class="btn btn-outline-dark">Logout</button>
+          </form>
+        <% } else {%>
+          <a class="nav-item nav-link" href="/login">Login</a>
+          <a class="nav-item nav-link" href="/register">Register</a>
         <% } %>
-          <form class="nav-item form-inline mr-2" action="/register" method="GET">
-            <button type="submit" class="btn btn-outline-dark">Register</button>
-          </form>
-          <form class="nav-item form-inline" action="/login" method="GET">
-            <button type="submit" class="btn btn-outline-dark">Login</button>
-          </form>
       </div>
     </div>
   </nav>
