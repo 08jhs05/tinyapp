@@ -9,6 +9,12 @@
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
       </div>
+      <div class="navbar-nav ml-auto">
+        <form class="nav-item form-inline" action="/login" method="POST">
+          <input class="form-control mr-2" type="text" name="username" placeholder="username" style="width: 300px;">
+          <button type="submit" class="btn btn-primary">Sign in</button>
+        </form>
+      </div>
     </div>
   </nav>
 </header>
