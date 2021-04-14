@@ -43,7 +43,7 @@ app.get("/hello", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  res.render('urls_index', getTemplateVars(users[req.cookies.user_id]))
+  res.render('urls_index', getTemplateVars(users[req.cookies.user_id], req))
 });
 
 app.post("/urls", (req, res) => {
@@ -53,22 +53,27 @@ app.post("/urls", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new", getTemplateVars(users[req.cookies.user_id]));
+  res.render("urls_new", getTemplateVars(users[req.cookies.user_id], req));
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  res.render("urls_show", getTemplateVars(users[req.cookies.user_id]));
+  res.render("urls_show", getTemplateVars(users[req.cookies.user_id], req));
 });
 
 app.get("/register", (req, res) => {
-  res.render("register", getTemplateVars(users[req.cookies.user_id]));
+  res.render("register", getTemplateVars(users[req.cookies.user_id], req));
 });
 
 app.post("/register", (req, res) => {
+
+  if(!req.body.email || !req.body.password || doesEmailExist(req.body.email, users)) res.sendStatus(400);
+
   const user = { id: generateRandomString(),
     email: req.body.email,
     password: req.body.password };
+
   users[user.id] = user;
+
   res.cookie('user_id', user.id);
   res.redirect("/urls");
 });
@@ -98,6 +103,9 @@ app.post("/logout", (req, res) => {
   res.redirect("/urls");
 });
 
+
+// ===================================== helper functions =========================================
+
 function generateRandomString() {
   let result           = [];
   let characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -108,10 +116,17 @@ function generateRandomString() {
  return result.join('');
 }
 
-function getTemplateVars(user){
+function getTemplateVars(user, req){
   return { urls: urlDatabase,
     shortURL: req.params.shortURL, 
     longURL: urlDatabase[req.params.shortURL],
     user: user
   }
+}
+
+function doesEmailExist(email, users){
+  for(user in users){
+    if(users[user].email === email) return true;
+  }
+  return false;
 }
