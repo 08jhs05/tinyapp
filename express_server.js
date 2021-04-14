@@ -98,12 +98,15 @@ app.get("/login", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  //res.cookie('username', req.body.username);
+  if(!doesEmailExist(req.body.email, users)) res.sendStatus(403);
+  const currentUser = users[doesEmailExist(req.body.email, users)];
+  if(req.body.password !== currentUser.password) res.sendStatus(403);
+  res.cookie('user_id', currentUser.id);
   res.redirect("/urls");
 });
 
 app.post("/logout", (req, res) => {
-  //res.clearCookie("username");
+  res.clearCookie("user_id");
   res.redirect("/urls");
 });
 
@@ -129,7 +132,7 @@ function getTemplateVars(user, req){
 
 function doesEmailExist(email, users){
   for(user in users){
-    if(users[user].email === email) return true;
+    if(users[user].email === email) return user;
   }
   return false;
 }
