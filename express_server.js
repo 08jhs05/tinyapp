@@ -141,3 +141,11 @@ function doesEmailExist(email, users){
   }
   return false;
 }
+
+function urlsForUser(id, urlDatabase){
+  const result = [];
+  for(url in urlDatabase){
+    if(urlDatabase[url].userID === id) result.push(url);
+  }
+  return result;
+}
