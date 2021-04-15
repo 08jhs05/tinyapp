@@ -68,7 +68,7 @@ app.get("/register", (req, res) => {
 
 app.post("/register", (req, res) => {
 
-  if(!req.body.email || !req.body.password || doesEmailExist(req.body.email, users)) res.sendStatus(400);
+  if(!req.body.email || !req.body.password || getUserByEmail(req.body.email, users)) res.sendStatus(400);
 
   const user = { id: generateRandomString(),
     email: req.body.email,
@@ -110,9 +110,9 @@ app.get("/login", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  if(!doesEmailExist(req.body.email, users)) res.sendStatus(403);
+  if(!getUserByEmail(req.body.email, users)) res.sendStatus(403);
 
-  const currentUser = users[doesEmailExist(req.body.email, users)];
+  const currentUser = users[getUserByEmail(req.body.email, users)];
   if(!bcrypt.compareSync(req.body.password, currentUser.password)) res.sendStatus(403); //refractor to use bcrypt
 
   req.session.user_id = currentUser.id;
@@ -144,8 +144,8 @@ function getTemplateVars(urlDatabase, user, req){
   }
 }
 
-function doesEmailExist(email, users){
-  for(user in users){
+function getUserByEmail(email, database){
+  for(user in database){
     if(users[user].email === email) return user;
   }
   return false;
