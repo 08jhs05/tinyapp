@@ -5,7 +5,7 @@ const app = express();
 const PORT = 8080;
 
 const urlDatabase = {
-  b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
+  sgq3y6: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
   i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" }
 };
 
@@ -73,12 +73,20 @@ app.post("/register", (req, res) => {
 });
 
 app.post("/urls/:shortURL", (req, res) => {
+  if(urlDatabase[req.params.shortURL].userID !== req.cookies.user_id) {
+    res.send('you do not have permission to delete/edit this url.');
+    res.sendStatus(400);
+  }
   urlDatabase[req.params.shortURL].longURL = req.body.longURL;
   urlDatabase[req.params.shortURL].userID = req.cookies.user_id;
   res.redirect("/urls");
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
+  if(urlDatabase[req.params.shortURL].userID !== req.cookies.user_id) {
+    res.send('you do not have permission to delete/edit this url.');
+    res.sendStatus(400);;
+  }
   delete urlDatabase[req.params.shortURL];
   res.redirect("/urls");
 });
