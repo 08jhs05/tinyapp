@@ -68,12 +68,15 @@ app.get("/register", (req, res) => {
 
 app.post("/register", (req, res) => {
 
-  if(!req.body.email || !req.body.password || getUserByEmail(req.body.email, users)) res.sendStatus(400);
+  if(!req.body.email || !req.body.password || getUserByEmail(req.body.email, users)) {
+    res.send('Password/email cannot be empty. Or email you entered is already in database')
+    res.sendStatus(400);
+  }
 
   const user = { id: generateRandomString(),
     email: req.body.email,
     password: bcrypt.hashSync(req.body.password, hashIteration)
-  }; //use bcrypt
+  };
 
   users[user.id] = user;
 
