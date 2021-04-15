@@ -1,8 +1,11 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cookies = require("cookie-parser");
+
+const bcrypt = require('bcrypt');
 const app = express();
 const PORT = 8080;
+const hashIteration = 10;
 
 const urlDatabase = {
   sgq3y6: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
@@ -64,8 +67,9 @@ app.post("/register", (req, res) => {
 
   const user = { id: generateRandomString(),
     email: req.body.email,
-    password: req.body.password };
+    password: bcrypt.hashSync(req.body.password, hashIteration) }; //use bcrypt
 
+    console.log(user.password)
   users[user.id] = user;
 
   res.cookie('user_id', user.id);
@@ -104,7 +108,7 @@ app.post("/login", (req, res) => {
   if(!doesEmailExist(req.body.email, users)) res.sendStatus(403);
 
   const currentUser = users[doesEmailExist(req.body.email, users)];
-  if(req.body.password !== currentUser.password) res.sendStatus(403);
+  if(!bcrypt.compareSync(req.body.password, currentUser.password)) res.sendStatus(403); //refractor to use bcrypt
 
   res.cookie('user_id', currentUser.id);
   res.redirect("/urls");
