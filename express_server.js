@@ -8,23 +8,8 @@ const PORT = 8080;
 const cookieSession = require('cookie-session');
 const hashIteration = 10;
 
-const urlDatabase = {
-  sgq3y6: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
-  i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" }
-};
-
-const users = { 
-  "userRandomID": {
-    id: "userRandomID", 
-    email: "user@example.com", 
-    password: "purple-monkey-dinosaur"
-  },
- "user2RandomID": {
-    id: "user2RandomID", 
-    email: "user2@example.com", 
-    password: "dishwasher-funk"
-  }
-};
+const urlDatabase = {};
+const users = {};
 
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({extended: true}));
@@ -36,7 +21,7 @@ app.use(cookieSession({
 }))
 
 app.listen(PORT, () => {
-  console.log(`Example app listening on port ${PORT}!`);
+  console.log(`tinyURL server listening on port ${PORT}!`);
 });
 
 app.get("/urls", (req, res) => {
@@ -68,12 +53,12 @@ app.get("/register", (req, res) => {
 app.post("/register", (req, res) => {
 
   if(!req.body.email || !req.body.password){
-    res.send('Password/email cannot be blank')
+    res.send('<html><body>Password/email cannot be blank.</body></html>\n')
     res.sendStatus(400);
   }
 
   if(getUserByEmail(req.body.email, users)){
-    res.send('email already exists in database')
+    res.send('<html><body>email already exists in database.</body></html>\n')
     res.sendStatus(400);
   }
 
@@ -90,7 +75,7 @@ app.post("/register", (req, res) => {
 
 app.post("/urls/:shortURL", (req, res) => {
   if(urlDatabase[req.params.shortURL].userID !== req.session.user_id) {
-    res.send('you do not have permission to delete/edit this url.');
+    res.send('<html><body>you do not have permission to delete/edit this url.</body></html>\n');
     res.sendStatus(400);
   }
   urlDatabase[req.params.shortURL].longURL = req.body.longURL;
@@ -100,7 +85,7 @@ app.post("/urls/:shortURL", (req, res) => {
 
 app.post("/urls/:shortURL/delete", (req, res) => {
   if(urlDatabase[req.params.shortURL].userID !== req.session.user_id) {
-    res.send('you do not have permission to delete/edit this url.');
+    res.send('<html><body>you do not have permission to delete/edit this url.</body></html>\n');
     res.sendStatus(400);;
   }
   delete urlDatabase[req.params.shortURL];
@@ -118,13 +103,13 @@ app.get("/login", (req, res) => {
 
 app.post("/login", (req, res) => {
   if(!getUserByEmail(req.body.email, users)) {
-    res.send('email you entered does not exist')
+    res.send('<html><body>email does not exist in database.</body></html>\n')
     res.sendStatus(403);
   }
 
   const currentUser = users[getUserByEmail(req.body.email, users)];
   if(!bcrypt.compareSync(req.body.password, currentUser.password)) {
-    res.send('wrong password!!!');
+    res.send('<html><body>Password is incorrect.</body></html>\n');
     res.sendStatus(403);
   }
 
