@@ -26,44 +26,36 @@ app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookies());
 
-app.get("/", (req, res) => {
-  res.send("Hello!");
-});
-
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
 
-app.get("/urls.json", (req, res) => {
-  res.json(urlDatabase);
-});
-
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
-});
-
 app.get("/urls", (req, res) => {
-  res.render('urls_index', getTemplateVars(users[req.cookies.user_id], req));
+  const filteredUrls = urlsForUser(req.cookies.user_id, urlDatabase);
+  res.render('urls_index', getTemplateVars(filteredUrls, users[req.cookies.user_id], req));
 });
 
 app.post("/urls", (req, res) => {
   const newShortURL = generateRandomString();
+  urlDatabase[newShortURL] = {};
   urlDatabase[newShortURL].longURL = req.body.longURL;
   urlDatabase[newShortURL].userID = req.cookies.user_id;
+
+  console.log(urlDatabase);
   res.redirect('/urls/' + newShortURL);
 });
 
 app.get("/urls/new", (req, res) => {
   if(!req.cookies.user_id) res.redirect("/login");
-  res.render("urls_new", getTemplateVars(users[req.cookies.user_id], req));
+  res.render("urls_new", getTemplateVars(urlDatabase, users[req.cookies.user_id], req));
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  res.render("urls_show", getTemplateVars(users[req.cookies.user_id], req));
+  res.render("urls_show", getTemplateVars(urlDatabase, users[req.cookies.user_id], req));
 });
 
 app.get("/register", (req, res) => {
-  res.render("register", getTemplateVars(users[req.cookies.user_id], req));
+  res.render("register", getTemplateVars(urlDatabase, users[req.cookies.user_id], req));
 });
 
 app.post("/register", (req, res) => {
@@ -97,7 +89,7 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 app.get("/login", (req, res) => {
-  res.render("login", getTemplateVars(users[req.cookies.user_id], req));
+  res.render("login", getTemplateVars(urlDatabase, users[req.cookies.user_id], req));
 });
 
 app.post("/login", (req, res) => {
@@ -127,7 +119,7 @@ function generateRandomString() {
  return result.join('');
 }
 
-function getTemplateVars(user, req){
+function getTemplateVars(urlDatabase, user, req){
   return { urls: urlDatabase,
     shortURL: req.params.shortURL, 
     longURL: urlDatabase[req.params.shortURL] === undefined ? undefined : urlDatabase[req.params.shortURL].longURL,
@@ -143,9 +135,13 @@ function doesEmailExist(email, users){
 }
 
 function urlsForUser(id, urlDatabase){
-  const result = [];
+  const result = {};
   for(url in urlDatabase){
-    if(urlDatabase[url].userID === id) result.push(url);
+    if(urlDatabase[url].userID === id) {
+      result[url] = {};
+      result[url].longURL = urlDatabase[url].longURL;
+      result[url].userID = urlDatabase[url].userID;
+    }
   }
   return result;
 }
