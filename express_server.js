@@ -28,12 +28,11 @@ const users = {
 
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({extended: true}));
-//app.use(cookies());
 
 app.use(cookieSession({
   name: 'session',
   keys: ['key1', 'key2'],
-  maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  maxAge: 24 * 60 * 60 * 1000
 }))
 
 app.listen(PORT, () => {
@@ -68,8 +67,13 @@ app.get("/register", (req, res) => {
 
 app.post("/register", (req, res) => {
 
-  if(!req.body.email || !req.body.password || getUserByEmail(req.body.email, users)) {
-    res.send('Password/email cannot be empty. Or email you entered is already in database')
+  if(!req.body.email || !req.body.password){
+    res.send('Password/email cannot be blank')
+    res.sendStatus(400);
+  }
+
+  if(getUserByEmail(req.body.email, users)){
+    res.send('email already exists in database')
     res.sendStatus(400);
   }
 
@@ -113,10 +117,16 @@ app.get("/login", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  if(!getUserByEmail(req.body.email, users)) res.sendStatus(403);
+  if(!getUserByEmail(req.body.email, users)) {
+    res.send('email you entered does not exist')
+    res.sendStatus(403);
+  }
 
   const currentUser = users[getUserByEmail(req.body.email, users)];
-  if(!bcrypt.compareSync(req.body.password, currentUser.password)) res.sendStatus(403); //refractor to use bcrypt
+  if(!bcrypt.compareSync(req.body.password, currentUser.password)) {
+    res.send('wrong password!!!');
+    res.sendStatus(403);
+  }
 
   req.session.user_id = currentUser.id;
   res.redirect("/urls");
