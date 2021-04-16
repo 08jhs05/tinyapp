@@ -24,6 +24,10 @@ app.listen(PORT, () => {
   console.log(`tinyURL server listening on port ${PORT}!`);
 });
 
+app.get("/", (req, res) => {
+  res.redirect("/urls");
+});
+
 app.get("/urls", (req, res) => {
   const filteredUrls = urlsForUser(req.session.user_id, urlDatabase);
   res.render('urls_index', getTemplateVars(filteredUrls, users[req.session.user_id], req));
